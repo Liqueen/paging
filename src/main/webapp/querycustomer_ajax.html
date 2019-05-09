@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h2>查询客户信息</h2>
+<div id="app">
+    <form action="customerQueryService">
+        客户编号:<input name="custId" type="text">
+        客户名称:<input name="custName" type="text">
+        <input type="hidden" name="opType" value="query">
+        <button type="button" @click="firstPage()">查询</button>
+    </form>
+
+    <input type="text" v-model="currentPage">
+
+    <table>
+        <thead>
+        <tr>
+            <th>客户编号</th>
+            <th>存储编号</th>
+            <th>姓名</th>
+            <th>邮箱</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr v-for="customer in listdata">
+                <td>{{customer.customer_id}}</td>
+                <td>{{customer.store_id}}</td>
+                <td>{{customer.first_name}}</td>
+                <td>{{customer.email}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="javascript:void(0)" @click="firstPage()">首页</a>
+    <a href="javascript:void(0)" @click="prePage()">上一页</a>
+    <a href="javascript:void(0)" @click="nextPage()">下一页</a>
+    <a href="javascript:void(0)" @click="lastPage()">末页</a>
+
+</div>
+<script src="js/jquery-3.4.0.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+<script>
+
+    var vue = new Vue({
+        el:"#app",
+        data: {
+            currentPage : 0,
+            totalPage:0,
+            listdata: []
+        },
+        methods: {
+            /*首页*/
+            firstPage: function () {
+                var _self = this;
+                $.post("/demoweb/customerQueryService",{"opType":"query"},function (mydata) {
+                    _self.currentPage = mydata.currentPage;
+                    _self.totalPage = mydata.totalPage;
+                    _self.listdata  = mydata.data;
+
+                },"json");
+            },
+            /*上一页*/
+            prePage: function () {
+                var _self = this;
+                this.currentPage = this.currentPage-1;
+                $.post("/demoweb/customerQueryService",{"opType":"query","pageIndex":this.currentPage},function (mydata) {
+                    _self.currentPage = mydata.currentPage;
+                    _self.totalPage = mydata.totalPage;
+                    _self.listdata  = mydata.data;
+                },"json");
+            },
+            /*下一页*/
+            nextPage: function () {
+                var _self = this;
+                this.currentPage = this.currentPage+1;
+                $.post("/demoweb/customerQueryService",{"opType":"query","pageIndex":this.currentPage},function (mydata) {
+                    _self.currentPage = mydata.currentPage;
+                    _self.totalPage = mydata.totalPage;
+                    _self.listdata  = mydata.data;
+                },"json");
+            },
+            /*末页*/
+            lastPage: function () {
+                var _self = this;
+                this.currentPage = this.totalPage;
+                $.post("/demoweb/customerQueryService",{"opType":"query","pageIndex":this.currentPage},function (mydata) {
+                    _self.currentPage = mydata.currentPage;
+                    _self.totalPage = mydata.totalPage;
+                    _self.listdata  = mydata.data;
+                },"json");
+            }
+        }
+    });
+
+    function firstPage() {
+        $.post("/demoweb/customerQueryService",{"opType":"query"},function (data) {
+            console.log(data)
+        },"json");
+    }
+</script>
+</body>
+</html>
